@@ -9,6 +9,9 @@ services:
       - DATABASE_URL=postgresql://postgres:test123@db:5432/mydb
     depends_on:
       - db
+    volumes:
+      - ./:/app
+      - /app/node-modules
 
   db:
     image: postgres:15
