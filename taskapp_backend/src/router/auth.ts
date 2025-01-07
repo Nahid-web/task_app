@@ -77,12 +77,49 @@ authRouter.post(
     }
 
     //generate token
-    const token = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET!);
+    const jwtSecret = process.env.JWT_SECRET;
+    const token = jwt.sign({ id: existingUser.id }, jwtSecret!);
 
     //get the user
     res.json({ token, ...existingUser });
   }
 );
+
+authRouter.post("/tokenIsValid", async (req, res) => {
+  try {
+    //get the token
+    const token = req.header("x-auth-token");
+
+    if (!token) {
+      res.json(false);
+      return;
+    }
+
+    //verify if the token is valid
+    const jwtSecret = process.env.JWT_SECRET;
+    const verified = jwt.verify(token, jwtSecret!);
+
+    if (!verified) {
+      res.json(false);
+      return;
+    }
+    // get the user data if the token is valid
+    const verifiedToken = verified as { id: string };
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, verifiedToken.id));
+
+    if (!user) {
+      res.json(false);
+      return;
+    }
+
+    res.json(true);
+  } catch (e) {
+    res.status(500).json({ error: e });
+  }
+});
 
 authRouter.get("/", (req, res) => {
   res.send("hei there i am from auth");
