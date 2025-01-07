@@ -2,8 +2,10 @@ import { match } from "assert";
 import bcryptjs from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { Request, Response, Router } from "express";
+import jwt from "jsonwebtoken";
 import { db } from "../db";
 import { NewUser, users } from "../db/schema";
+
 const authRouter = Router();
 
 interface SignUpBody {
@@ -74,8 +76,11 @@ authRouter.post(
       return;
     }
 
+    //generate token
+    const token = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET!);
+
     //get the user
-    res.json(existingUser);
+    res.json({ token, ...existingUser });
   }
 );
 
