@@ -5,6 +5,7 @@ import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
 import { NewUser, users } from "../db/schema";
+import { auth, AuthRequest } from "../middleware/auth";
 
 const authRouter = Router();
 
@@ -117,12 +118,22 @@ authRouter.post("/tokenIsValid", async (req, res) => {
 
     res.json(true);
   } catch (e) {
-    res.status(500).json({ error: e });
+    res.status(500).json(false);
   }
 });
 
-authRouter.get("/", (req, res) => {
-  res.send("hei there i am from auth");
+authRouter.get("/", auth, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: "user not found" });
+      return;
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, req.user));
+    res.json({ ...user, token: req.token });
+  } catch (e) {
+    res.status(500).json(false);
+  }
 });
 
 export default authRouter;
