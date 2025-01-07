@@ -3,10 +3,10 @@ services:
     build:
       context: ./
     ports:
-      - "8000:8000"
+      - "${PORT}:${PORT}"
     environment:
-      - PORT:8000
-      - DATABASE_URL=postgresql://postgres:test123@db:5432/mydb
+      - PORT:${PORT}
+      - DATABASE_URL=${DATABASE_URL}
     depends_on:
       - db
     volumes:
@@ -18,11 +18,11 @@ services:
     container_name: postgres_container
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test123
-      POSTGRES_DB: mydb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
