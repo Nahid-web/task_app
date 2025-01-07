@@ -1,3 +1,4 @@
+import { match } from "assert";
 import bcryptjs from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { Request, Response, Router } from "express";
@@ -11,6 +12,10 @@ interface SignUpBody {
   password: string;
 }
 
+interface LogInBody {
+  email: string;
+  password: string;
+}
 authRouter.post(
   "/signup",
   async (req: Request<{}, {}, SignUpBody>, res: Response) => {
@@ -42,6 +47,35 @@ authRouter.post(
     } catch (error) {
       res.status(500).json({ error: error });
     }
+  }
+);
+
+authRouter.post(
+  "/login",
+  async (req: Request<{}, {}, LogInBody>, res: Response) => {
+    //get req body
+    const { email, password } = req.body;
+
+    //check if the user doesn't exits
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+    if (!existingUser) {
+      res
+        .status(400)
+        .json({ error: "Users with this email address does not exit" });
+      return;
+    }
+    // check password is similar
+    const isMatch = await bcryptjs.compare(password, existingUser.password);
+    if (!match) {
+      res.status(400).json({ error: "Incorrect password!" });
+      return;
+    }
+
+    //get the user
+    res.json(existingUser);
   }
 );
 
