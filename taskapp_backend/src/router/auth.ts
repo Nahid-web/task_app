@@ -1,4 +1,3 @@
-import { match } from "assert";
 import bcryptjs from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { Request, Response, Router } from "express";
@@ -72,7 +71,7 @@ authRouter.post(
     }
     // check password is similar
     const isMatch = await bcryptjs.compare(password, existingUser.password);
-    if (!match) {
+    if (!isMatch) {
       res.status(400).json({ error: "Incorrect password!" });
       return;
     }
