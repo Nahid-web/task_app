@@ -11,7 +11,6 @@ class AuthRemoteRepository {
     required String password,
   }) async {
     try {
-      print(Urls.signUpUrl);
       final res = await http.post(
         Uri.parse(Urls.signUpUrl),
         headers: {
@@ -30,7 +29,35 @@ class AuthRemoteRepository {
 
       return UserModel.fromJson(jsonDecode(res.body));
     } catch (e) {
-      print(e.toString());
+      throw e.toString();
+    }
+  }
+
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse(
+          Urls.loginUrl,
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (res.statusCode != 200) {
+        throw jsonDecode(res.body)['error'];
+      }
+      return UserModel.fromJson(
+        jsonDecode(res.body),
+      );
+    } catch (e) {
       throw e.toString();
     }
   }
