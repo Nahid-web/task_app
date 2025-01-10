@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskapp_frontend/core/utils.dart';
 import 'package:taskapp_frontend/features/auth/cubit/auth_cubit.dart';
+import 'package:taskapp_frontend/features/auth/home/pages/home_page.dart';
 import 'package:taskapp_frontend/features/auth/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void signUpUser() {
+  void loginUser() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthCubit>().login(
             email: _emailController.text.trim(),
@@ -43,7 +44,11 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthError) {
             showSnackBar(context, state.error);
           } else if (state is AuthLoggedIn) {
-            showSnackBar(context, "login Success");
+            Navigator.pushAndRemoveUntil(
+              context,
+              HomePage.route(),
+              (_) => false,
+            );
           }
         },
         builder: (context, state) {
@@ -99,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 30,
                   ),
                   ElevatedButton(
-                    onPressed: signUpUser,
+                    onPressed: loginUser,
                     child: Text(
                       'Log In ',
                       style: TextStyle(
